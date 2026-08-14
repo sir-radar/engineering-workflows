@@ -9,7 +9,7 @@
 - Do not add app code, project-specific assets, MCP servers, hooks, external runtime dependencies, or remote publishing without explicit scope.
 - Update shared project policy only inside the managed block. `scripts/sync-policy.mjs` distributes that block without overwriting consumer-owned instructions.
 
-<!-- frontend-workflows:start version=0.3.0 -->
+<!-- frontend-workflows:start version=0.4.0 -->
 # Evidence-Driven Frontend Workflow Policy
 
 ## Mission and scope
@@ -47,6 +47,7 @@ Use only installed skills whose trigger applies. Specialist skills own workflow 
 
 | Skill | Use for | Boundary |
 | --- | --- | --- |
+| `$caveman` | Automatic token-efficient user-facing communication for every task | Explicit style requests, correctness, clarity, safety, and required progress updates override compression |
 | `$figma-ui-implementation` | One-shot UI implementation from Figma, screenshots, exports, or layer CSS | Own evidence-to-code orchestration; do not approve its own final work |
 | `$design-system-governance` | Reuse, extend, local-create, or shared-create decisions | Do not force reuse without semantic and consumer fit |
 | `$api-state-contracts` | Data-backed UI, schemas, fixtures, races, rollback, and drift | Do not invent backend behavior or values |
@@ -57,6 +58,16 @@ Use only installed skills whose trigger applies. Specialist skills own workflow 
 | `$frontend-pr-review` | Final read-only adversarial frontend review | Findings-first; return fixes to the owning workflow |
 
 For a Figma or image-to-UI task: run implementation, applicable design/API checks, visual regression, accessibility audit, measured performance, and final PR review in that order. A required failure returns to its owning workflow and invalidates affected evidence.
+
+## Communication mode
+
+Load `$caveman` automatically at the start of every task and keep it active for user-facing responses unless the user requests normal prose or another explicit style. Use its `full` level by default.
+
+- Preserve technical accuracy, exact code, commands, paths, errors, numbers, units, qualifications, and negation.
+- Let system, developer, repository, user, safety, accessibility, and tool-progress requirements override compression.
+- Use normal concise prose when compression could make a warning, approval, ordered procedure, high-stakes qualification, or clarification ambiguous; resume afterward.
+- Keep persisted artifacts in their required native style. Do not apply caveman voice to code, comments, documentation, commits, issues, pull requests, memory, or third-party messages unless explicitly requested.
+- Honor `stop caveman`, `normal mode`, `/caveman off`, or equivalent immediately. Honor explicit intensity changes for the rest of the task.
 
 ## Artifact handoff
 

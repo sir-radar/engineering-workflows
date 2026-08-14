@@ -1,15 +1,15 @@
 {
   "name": "frontend-workflows",
-  "version": "0.3.0+codex.20260814071047",
-  "description": "Evidence-driven frontend implementation, audit, and review workflows for Codex.",
+  "version": "0.4.0+codex.20260814072212",
+  "description": "Evidence-driven frontend implementation, audit, review, and concise communication workflows for Codex.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Frontend Workflows",
-    "shortDescription": "Implement and audit production frontend interfaces.",
-    "longDescription": "Frontend Workflows provides evidence-driven Figma implementation, accessibility, visual regression, performance, API-state, design-system, task-branch and Fallow commit gates, and pull-request review skills.",
+    "shortDescription": "Build, audit, and compress frontend workflows.",
+    "longDescription": "Frontend Workflows provides implicitly activated Caveman communication plus evidence-driven Figma implementation, accessibility, visual regression, performance, API-state, design-system, task-branch and Fallow commit gates, and pull-request review skills.",
     "developerName": "Local developer",
     "category": "Developer Tools",
     "capabilities": [],
