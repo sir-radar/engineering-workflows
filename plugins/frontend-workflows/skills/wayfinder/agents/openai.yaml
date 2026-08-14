@@ -1,0 +1,6 @@
+interface:
+  display_name: "Wayfinder"
+  short_description: "Map uncertain efforts as decision tickets"
+  default_prompt: "Use $wayfinder to chart this large, uncertain effort into a safe decision map."
+policy:
+  allow_implicit_invocation: false

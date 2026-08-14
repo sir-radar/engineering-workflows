@@ -17,6 +17,7 @@ const expectedSkills = [
   'frontend-performance-budget',
   'frontend-pr-review',
   'visual-regression',
+  'wayfinder',
 ];
 const failures = [];
 
@@ -111,6 +112,19 @@ for (const name of actualSkills) {
     check(license.includes('c72984e4392c7a154e55c11dbf445f01ce5c35d4'), 'caveman: upstream revision must remain pinned');
     check(license.includes('Copyright (c) 2026 Julius Brussee'), 'caveman: upstream copyright notice is missing');
   }
+  if (name === 'wayfinder') {
+    check(metadata.description.includes('Use only when the user explicitly invokes'), 'wayfinder: description must require explicit invocation');
+    check(interfaceYaml.includes('allow_implicit_invocation: false'), 'wayfinder: implicit invocation must remain disabled');
+    check(skill.includes('[decision-methods.md](references/decision-methods.md)'), 'wayfinder: decision methods must be self-contained');
+    check(skill.includes('[github-tracker.md](references/github-tracker.md)'), 'wayfinder: GitHub tracker adapter is missing');
+    check(skill.includes('[local-tracker.md](references/local-tracker.md)'), 'wayfinder: local tracker fallback is missing');
+    check(skill.includes('scripts/wayfinder-ledger.mjs'), 'wayfinder: deterministic claim arbitration is missing');
+    check(skill.includes('append-only'), 'wayfinder: concurrency-safe append-only events are missing');
+    check(!skill.includes('/grilling') && !skill.includes('/domain-modeling') && !skill.includes('/research') && !skill.includes('/prototype'), 'wayfinder: unresolved upstream skill dependency remains');
+    const license = await readFile(join(directory, 'LICENSE'), 'utf8');
+    check(license.includes('38d62e71ed01fc05d5ae63b0807172e9546049d5'), 'wayfinder: upstream revision must remain pinned');
+    check(license.includes('Copyright (c) 2026 Matt Pocock'), 'wayfinder: upstream copyright notice is missing');
+  }
 
   const files = await filesBelow(directory);
   check(!files.some((path) => /\/(?:README|CHANGELOG|INSTALLATION_GUIDE|QUICK_REFERENCE)\.md$/i.test(path)), `${name}: contains auxiliary documentation`);
@@ -161,9 +175,13 @@ const endMarkers = [...agents.matchAll(/<!-- frontend-workflows:end -->/g)];
 check(startMarkers.length === 1 && endMarkers.length === 1, 'AGENTS.md must contain exactly one managed policy block');
 check(startMarkers[0]?.[1] === pluginBaseVersion, 'managed policy version must match plugin base version');
 check(agents.includes('| `$caveman` |'), 'managed policy must route communication through $caveman');
+check(agents.includes('| `$wayfinder` |'), 'managed policy must route explicit planning through $wayfinder');
 check(agents.includes('## Communication mode'), 'managed policy must define automatic communication mode');
 check(agents.includes('Load `$caveman` automatically at the start of every task'), 'managed policy must auto-activate $caveman');
 check(agents.includes('Honor `stop caveman`, `normal mode`, `/caveman off`'), 'managed policy must preserve the Caveman opt-out');
+check(agents.includes('## Wayfinder planning mode'), 'managed policy must define explicit Wayfinder planning mode');
+check(agents.includes('Use `$wayfinder` only when the user explicitly invokes it'), 'managed policy must prevent implicit Wayfinder activation');
+check(agents.includes('append-only map events'), 'managed policy must preserve Wayfinder concurrency safety');
 check(agents.includes('## Task branch gate'), 'managed policy must define the task branch gate');
 check(agents.includes('before the first repository edit for every new task'), 'managed policy must require branches before new task edits');
 check(agents.includes('ft/<short-kebab-case-task>'), 'managed policy must define the fallback task branch convention');

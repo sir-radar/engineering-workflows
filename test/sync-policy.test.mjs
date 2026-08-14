@@ -11,7 +11,7 @@ import {
   validateTarget,
 } from '../scripts/sync-policy.mjs';
 
-const block = `<!-- frontend-workflows:start version=0.4.0 -->\n# Shared policy\n${END_MARKER}`;
+const block = `<!-- frontend-workflows:start version=0.5.0 -->\n# Shared policy\n${END_MARKER}`;
 
 test('extracts exactly one managed block', () => {
   assert.equal(extractManagedBlock(`# Local\n\n${block}\n`), block);
@@ -59,7 +59,7 @@ test('rejects unsafe target scopes', async () => {
   await assert.rejects(() => validateTarget('*', toolkit), /glob syntax/);
 });
 
-test('distributes communication, task-branch, and Fallow gates intact', async () => {
+test('distributes communication, Wayfinder, task-branch, and Fallow gates intact', async () => {
   const source = await readFile(new URL('../AGENTS.md', import.meta.url), 'utf8');
   const managed = extractManagedBlock(source);
   const synchronized = synchronizeContent('# Project policy\n', managed);
@@ -67,6 +67,9 @@ test('distributes communication, task-branch, and Fallow gates intact', async ()
   assert.match(managed, /## Communication mode/);
   assert.match(managed, /Load `\$caveman` automatically at the start of every task/);
   assert.match(managed, /Honor `stop caveman`/);
+  assert.match(managed, /## Wayfinder planning mode/);
+  assert.match(managed, /Use `\$wayfinder` only when the user explicitly invokes it/);
+  assert.match(managed, /append-only map events/);
   assert.match(managed, /## Task branch gate/);
   assert.match(managed, /ft\/<short-kebab-case-task>/);
   assert.match(managed, /Do not commit task work directly to `main`/);
