@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
-const pluginRoot = join(root, 'plugins', 'frontend-workflows');
+const pluginRoot = join(root, 'plugins', 'engineering-workflows');
 const skillsRoot = join(pluginRoot, 'skills');
 const expectedSkills = [
   'api-state-contracts',
@@ -66,7 +66,7 @@ async function validateMarkdownLinks(path, content) {
 }
 
 const plugin = JSON.parse(await readFile(join(pluginRoot, '.codex-plugin', 'plugin.json'), 'utf8'));
-check(plugin.name === 'frontend-workflows', 'plugin name must be frontend-workflows');
+check(plugin.name === 'engineering-workflows', 'plugin name must be engineering-workflows');
 check(/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(plugin.version), 'plugin version must be semver');
 const pluginBaseVersion = plugin.version.split('+')[0];
 check(plugin.skills === './skills/', 'plugin skills path must be ./skills/');
@@ -74,9 +74,9 @@ check(!('apps' in plugin) && !('mcpServers' in plugin) && !('hooks' in plugin), 
 check(Array.isArray(plugin.interface?.defaultPrompt) && plugin.interface.defaultPrompt.length <= 3, 'plugin must provide at most three default prompts');
 
 const marketplace = JSON.parse(await readFile(join(root, '.agents', 'plugins', 'marketplace.json'), 'utf8'));
-check(marketplace.name === 'frontend-workflow-toolkit', 'marketplace name mismatch');
+check(marketplace.name === 'engineering-workflows', 'marketplace name mismatch');
 const entry = marketplace.plugins?.find((candidate) => candidate.name === plugin.name);
-check(entry?.source?.path === './plugins/frontend-workflows', 'marketplace source path mismatch');
+check(entry?.source?.path === './plugins/engineering-workflows', 'marketplace source path mismatch');
 check(entry?.policy?.installation === 'AVAILABLE', 'marketplace installation policy mismatch');
 check(entry?.policy?.authentication === 'ON_INSTALL', 'marketplace authentication policy mismatch');
 check(entry?.category === 'Developer Tools', 'marketplace category mismatch');
@@ -170,8 +170,8 @@ check(prReview.includes('$fallow'), 'frontend-pr-review must inspect $fallow evi
 check(prReview.includes('complete root analysis'), 'frontend-pr-review must require complete Fallow analysis');
 
 const agents = await readFile(join(root, 'AGENTS.md'), 'utf8');
-const startMarkers = [...agents.matchAll(/<!-- frontend-workflows:start version=([^\s>]+) -->/g)];
-const endMarkers = [...agents.matchAll(/<!-- frontend-workflows:end -->/g)];
+const startMarkers = [...agents.matchAll(/<!-- engineering-workflows:start version=([^\s>]+) -->/g)];
+const endMarkers = [...agents.matchAll(/<!-- engineering-workflows:end -->/g)];
 check(startMarkers.length === 1 && endMarkers.length === 1, 'AGENTS.md must contain exactly one managed policy block');
 check(startMarkers[0]?.[1] === pluginBaseVersion, 'managed policy version must match plugin base version');
 check(agents.includes('| `$caveman` |'), 'managed policy must route communication through $caveman');
@@ -191,6 +191,10 @@ check(agents.includes('| `$fallow` |'), 'managed policy must route complete anal
 check(agents.includes('FALLOW_AGENT_SOURCE=codex fallow --format json --quiet --explain 2>/dev/null || true'), 'managed policy must include the complete Fallow command');
 check(agents.includes('every code-bearing commit'), 'managed policy must make the Fallow gate mandatory for code commits');
 
+const synchronizer = await readFile(join(root, 'scripts', 'sync-policy.mjs'), 'utf8');
+check(synchronizer.includes('LEGACY_START_PATTERN'), 'policy synchronizer must migrate legacy frontend-workflows markers');
+check(synchronizer.includes('LEGACY_END_MARKER'), 'policy synchronizer must preserve the legacy end-marker migration path');
+
 const packageJson = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 check(!packageJson.dependencies && !packageJson.devDependencies, 'toolkit must not declare runtime or development dependencies');
 check(packageJson.version === pluginBaseVersion, 'package version must match plugin base version');
@@ -199,5 +203,5 @@ if (failures.length) {
   process.stderr.write(`${failures.map((failure) => `- ${failure}`).join('\n')}\n`);
   process.exitCode = 1;
 } else {
-  process.stdout.write(`Validated frontend-workflows plugin, ${actualSkills.length} skills, policy markers, links, metadata, JSON, and scripts.\n`);
+  process.stdout.write(`Validated engineering-workflows plugin, ${actualSkills.length} skills, policy markers, links, metadata, JSON, and scripts.\n`);
 }

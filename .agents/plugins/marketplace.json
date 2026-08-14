@@ -1,14 +1,14 @@
 {
-  "name": "frontend-workflow-toolkit",
+  "name": "engineering-workflows",
   "interface": {
-    "displayName": "Frontend Workflow Toolkit"
+    "displayName": "Engineering Workflows"
   },
   "plugins": [
     {
-      "name": "frontend-workflows",
+      "name": "engineering-workflows",
       "source": {
         "source": "local",
-        "path": "./plugins/frontend-workflows"
+        "path": "./plugins/engineering-workflows"
       },
       "policy": {
         "installation": "AVAILABLE",

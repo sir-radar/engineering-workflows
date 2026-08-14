@@ -6,36 +6,49 @@ import { homedir } from 'node:os';
 import { dirname, join, parse, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const START_PATTERN = /<!-- frontend-workflows:start version=[^\s>]+ -->/g;
-export const END_MARKER = '<!-- frontend-workflows:end -->';
+export const START_PATTERN = /<!-- engineering-workflows:start version=[^\s>]+ -->/g;
+export const END_MARKER = '<!-- engineering-workflows:end -->';
+export const LEGACY_START_PATTERN = /<!-- frontend-workflows:start version=[^\s>]+ -->/g;
+export const LEGACY_END_MARKER = '<!-- frontend-workflows:end -->';
 
 function matches(content, pattern) {
   return [...content.matchAll(new RegExp(pattern.source, pattern.flags))];
 }
 
-export function extractManagedBlock(content) {
-  const starts = matches(content, START_PATTERN);
-  const ends = [...content.matchAll(/<!-- frontend-workflows:end -->/g)];
+function markerLocations(content) {
+  const families = [
+    { name: 'current', starts: matches(content, START_PATTERN), ends: [...content.matchAll(/<!-- engineering-workflows:end -->/g)] },
+    { name: 'legacy', starts: matches(content, LEGACY_START_PATTERN), ends: [...content.matchAll(/<!-- frontend-workflows:end -->/g)] },
+  ];
+  return {
+    starts: families.flatMap((family) => family.starts.map((match) => ({ family: family.name, match }))),
+    ends: families.flatMap((family) => family.ends.map((match) => ({ family: family.name, match }))),
+  };
+}
+
+function singleManagedBlock(content, errorPrefix) {
+  const { starts, ends } = markerLocations(content);
   if (starts.length !== 1 || ends.length !== 1) {
-    throw new Error(`Expected exactly one managed block; found ${starts.length} starts and ${ends.length} ends.`);
+    throw new Error(`${errorPrefix}; found ${starts.length} starts and ${ends.length} ends.`);
   }
-  const start = starts[0].index;
-  const end = ends[0].index + END_MARKER.length;
-  if (start >= ends[0].index) throw new Error('Managed policy markers are out of order.');
+  if (starts[0].family !== ends[0].family || starts[0].match.index >= ends[0].match.index) {
+    throw new Error('Managed policy markers are mismatched or out of order.');
+  }
+  return { start: starts[0].match.index, end: ends[0].match.index + ends[0].match[0].length };
+}
+
+export function extractManagedBlock(content) {
+  const { start, end } = singleManagedBlock(content, 'Expected exactly one managed block');
   return content.slice(start, end);
 }
 
 export function synchronizeContent(current, managedBlock) {
-  const starts = matches(current, START_PATTERN);
-  const ends = [...current.matchAll(/<!-- frontend-workflows:end -->/g)];
+  const { starts, ends } = markerLocations(current);
   if (starts.length === 0 && ends.length === 0) {
     return current.trimEnd() ? `${current.trimEnd()}\n\n${managedBlock}\n` : `${managedBlock}\n`;
   }
-  if (starts.length !== 1 || ends.length !== 1 || starts[0].index >= ends[0].index) {
-    throw new Error(`Malformed managed policy markers; found ${starts.length} starts and ${ends.length} ends.`);
-  }
-  const end = ends[0].index + END_MARKER.length;
-  return `${current.slice(0, starts[0].index)}${managedBlock}${current.slice(end)}`;
+  const block = singleManagedBlock(current, 'Malformed managed policy markers');
+  return `${current.slice(0, block.start)}${managedBlock}${current.slice(block.end)}`;
 }
 
 export async function validateTarget(targetArgument, toolkitRoot) {
@@ -61,7 +74,7 @@ export async function applyPolicy({ target, managedBlock, mode }) {
   if (mode === 'check') return { changed, path };
   if (!changed) return { changed: false, path };
 
-  const temporary = `${path}.frontend-workflows.tmp`;
+  const temporary = `${path}.engineering-workflows.tmp`;
   await writeFile(temporary, expected, { encoding: 'utf8', flag: 'wx' });
   if (exists) {
     const beforeRename = await readFile(path, 'utf8');

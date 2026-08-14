@@ -6,7 +6,7 @@ https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder
 Pinned upstream revision:
 38d62e71ed01fc05d5ae63b0807172e9546049d5
 
-The adaptation is self-contained for the Frontend Workflows Codex plugin and adds
+The adaptation is self-contained for the Engineering Workflows Codex plugin and adds
 explicit authority boundaries, local and GitHub tracker adapters, deterministic
 claim arbitration, append-only map events, and concurrency-safe resolution gates.
 
