@@ -12,6 +12,7 @@ const expectedSkills = [
   'api-state-contracts',
   'caveman',
   'design-system-governance',
+  'fallow-remediation',
   'figma-ui-implementation',
   'frontend-accessibility-audit',
   'frontend-performance-budget',
@@ -125,6 +126,23 @@ for (const name of actualSkills) {
     check(license.includes('38d62e71ed01fc05d5ae63b0807172e9546049d5'), 'wayfinder: upstream revision must remain pinned');
     check(license.includes('Copyright (c) 2026 Matt Pocock'), 'wayfinder: upstream copyright notice is missing');
   }
+  if (name === 'fallow-remediation') {
+    check(skill.includes('installed `$fallow` skill'), 'fallow-remediation: must defer analyzer semantics to $fallow');
+    check(skill.includes('[action-policy.md](references/action-policy.md)'), 'fallow-remediation: action policy is missing');
+    check(skill.includes('[security-remediation.md](references/security-remediation.md)'), 'fallow-remediation: security policy is missing');
+    check(skill.includes('assets/fallow-remediation-record.md'), 'fallow-remediation: evidence record is missing');
+    check(skill.includes('auto_fixable'), 'fallow-remediation: per-action auto-fixability is missing');
+    check(skill.includes('fallow fix --dry-run --no-create-config'), 'fallow-remediation: guarded dry-run is missing');
+    check(skill.includes('fallow fix --yes --no-create-config'), 'fallow-remediation: guarded apply is missing');
+    check(skill.indexOf('fallow fix --dry-run') < skill.indexOf('fallow fix --yes'), 'fallow-remediation: fix preview must precede apply');
+    check(skill.includes('fallow security --diff-file -'), 'fallow-remediation: staged-diff security scan is missing');
+    check(skill.includes('unrelated or unsafe edit'), 'fallow-remediation: unrelated global fixes must be rejected');
+    check(skill.includes('staged security candidate is verified, uninvestigated'), 'fallow-remediation: unresolved security findings must block');
+    const securityPolicy = await readFile(join(directory, 'references', 'security-remediation.md'), 'utf8');
+    check(securityPolicy.includes('run `fallow schema`'), 'fallow-remediation: security category configuration must use the installed schema');
+    check(securityPolicy.includes('An `include` list is a whitelist'), 'fallow-remediation: secret-category opt-in must preserve ordinary coverage');
+    check(securityPolicy.includes('hardcoded-secret') && securityPolicy.includes('secret-to-network'), 'fallow-remediation: include-required secret categories are missing');
+  }
 
   const files = await filesBelow(directory);
   check(!files.some((path) => /\/(?:README|CHANGELOG|INSTALLATION_GUIDE|QUICK_REFERENCE)\.md$/i.test(path)), `${name}: contains auxiliary documentation`);
@@ -153,6 +171,7 @@ for (const routedSkill of [
   '$visual-regression',
   '$frontend-accessibility-audit',
   '$frontend-performance-budget',
+  '$fallow-remediation',
   '$frontend-pr-review',
 ]) {
   check(orchestrator.includes(routedSkill), `figma-ui-implementation must route to ${routedSkill}`);
@@ -165,12 +184,15 @@ check(orchestrator.includes('[react.md](references/react.md)'), 'figma-ui-implem
 check(orchestrator.includes('[vue.md](references/vue.md)'), 'figma-ui-implementation must route Vue work');
 check(orchestrator.includes('for every data-backed surface'), 'API-state routing must remain conditional on data-backed UI');
 check(orchestrator.includes('$fallow'), 'figma-ui-implementation must route code-bearing commits through $fallow');
-check(orchestrator.includes('dead-code, duplication, and health'), 'figma-ui-implementation must require the complete Fallow flow');
+check(orchestrator.includes('complete root analysis and staged-diff security scan'), 'figma-ui-implementation must require full Fallow and security analysis');
+check(orchestrator.includes('guarded automatic fixes'), 'figma-ui-implementation must prefer guarded Fallow fixes');
 check(orchestrator.indexOf('Before every code-bearing commit') < orchestrator.indexOf('Load `$frontend-pr-review`'), 'Fallow must run before final PR review');
 
 const prReview = await readFile(join(skillsRoot, 'frontend-pr-review', 'SKILL.md'), 'utf8');
 check(prReview.includes('$fallow'), 'frontend-pr-review must inspect $fallow evidence');
-check(prReview.includes('complete root analysis'), 'frontend-pr-review must require complete Fallow analysis');
+check(prReview.includes('$fallow-remediation'), 'frontend-pr-review must inspect $fallow-remediation evidence');
+check(prReview.includes('complete root analysis plus staged-diff security scan'), 'frontend-pr-review must require complete Fallow and security analysis');
+check(prReview.includes('Keep this review pass read-only'), 'frontend-pr-review must remain independent and read-only');
 
 const agents = await readFile(join(root, 'AGENTS.md'), 'utf8');
 const startMarkers = [...agents.matchAll(/<!-- engineering-workflows:start version=([^\s>]+) -->/g)];
@@ -189,9 +211,16 @@ check(agents.includes('## Task branch gate'), 'managed policy must define the ta
 check(agents.includes('before the first repository edit for every new task'), 'managed policy must require branches before new task edits');
 check(agents.includes('ft/<short-kebab-case-task>'), 'managed policy must define the fallback task branch convention');
 check(agents.includes('Do not commit task work directly to `main`, `master`, or another default/integration branch'), 'managed policy must protect default branches');
-check(agents.includes('## Fallow commit gate'), 'managed policy must define the Fallow commit gate');
+check(agents.includes('## Fallow remediation gate'), 'managed policy must define the Fallow remediation gate');
 check(agents.includes('| `$fallow` |'), 'managed policy must route complete analysis through $fallow');
+check(agents.includes('| `$fallow-remediation` |'), 'managed policy must route guarded fixes through $fallow-remediation');
 check(agents.includes('FALLOW_AGENT_SOURCE=codex fallow --format json --quiet --explain 2>/dev/null || true'), 'managed policy must include the complete Fallow command');
+check(agents.includes('fallow security --diff-file - --format json --quiet'), 'managed policy must include staged-diff security analysis');
+check(agents.includes('fallow fix --dry-run --no-create-config'), 'managed policy must require a guarded fix preview');
+check(agents.includes('fallow fix --yes --no-create-config'), 'managed policy must define guarded automatic application');
+check(agents.indexOf('fallow fix --dry-run') < agents.indexOf('fallow fix --yes'), 'managed policy must preview before applying Fallow fixes');
+check(agents.includes('If the global preview includes an unrelated or unsafe edit'), 'managed policy must reject unsafe repository-wide application');
+check(agents.includes('staged security candidate is verified or unresolved'), 'managed policy must block unresolved staged security candidates');
 check(agents.includes('every code-bearing commit'), 'managed policy must make the Fallow gate mandatory for code commits');
 
 const synchronizer = await readFile(join(root, 'scripts', 'sync-policy.mjs'), 'utf8');

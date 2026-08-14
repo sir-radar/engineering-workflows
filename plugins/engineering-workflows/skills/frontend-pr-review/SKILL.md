@@ -15,7 +15,7 @@ Review as a strict maintainer deciding whether the exact change is safe to merge
 4. Use [review-checklist.md](references/review-checklist.md) to examine behavior, rendering, races, APIs, tests, fidelity, and performance.
 5. Apply [security-review.md](references/security-review.md) to changed trust boundaries and browser behavior.
 6. Inspect raw specialist evidence with [evidence-review.md](references/evidence-review.md). A report conclusion is not evidence by itself.
-7. Load `$fallow` for code-bearing changes. Inspect or rerun the complete root analysis covering dead code, duplication, and health; verify that its revision and dirty state match the reviewed diff. Treat missing, runtime-failing, stale, or undispositioned error-severity evidence as a blocking review finding.
+7. Load `$fallow` and `$fallow-remediation` for code-bearing changes. Read the complete remediation record and inspect or rerun the complete root analysis plus staged-diff security scan; verify that their revision and dirty state match the reviewed diff. Treat missing, runtime-failing, stale, unsafe-auto-fix, undispositioned error-severity, unresolved security-candidate, or relevant-blind-spot evidence as a blocking review finding. Keep this review pass read-only.
 8. Reproduce high-risk paths or run the smallest relevant commands when safe. Do not mutate application source, baselines, snapshots, or configuration.
 9. Classify only actionable findings with [severity-and-output.md](references/severity-and-output.md).
 10. Produce `assets/frontend-review-report.md`. Put findings first, ordered by severity, with tight file and line locations.

@@ -12,7 +12,7 @@ import {
   validateTarget,
 } from '../scripts/sync-policy.mjs';
 
-const block = `<!-- engineering-workflows:start version=0.6.0 -->\n# Shared policy\n${END_MARKER}`;
+const block = `<!-- engineering-workflows:start version=0.7.0 -->\n# Shared policy\n${END_MARKER}`;
 
 test('extracts exactly one managed block', () => {
   assert.equal(extractManagedBlock(`# Local\n\n${block}\n`), block);
@@ -69,7 +69,7 @@ test('rejects unsafe target scopes', async () => {
   await assert.rejects(() => validateTarget('*', toolkit), /glob syntax/);
 });
 
-test('distributes communication, Wayfinder, task-branch, and Fallow gates intact', async () => {
+test('distributes communication, Wayfinder, task-branch, and Fallow remediation gates intact', async () => {
   const source = await readFile(new URL('../AGENTS.md', import.meta.url), 'utf8');
   const managed = extractManagedBlock(source);
   const synchronized = synchronizeContent('# Project policy\n', managed);
@@ -83,9 +83,16 @@ test('distributes communication, Wayfinder, task-branch, and Fallow gates intact
   assert.match(managed, /## Task branch gate/);
   assert.match(managed, /ft\/<short-kebab-case-task>/);
   assert.match(managed, /Do not commit task work directly to `main`/);
-  assert.match(managed, /## Fallow commit gate/);
+  assert.match(managed, /## Fallow remediation gate/);
   assert.match(managed, /\$fallow/);
+  assert.match(managed, /\$fallow-remediation/);
   assert.match(managed, /fallow --format json --quiet --explain 2>\/dev\/null \|\| true/);
+  assert.match(managed, /fallow security --diff-file - --format json --quiet/);
+  assert.match(managed, /fallow fix --dry-run --no-create-config/);
+  assert.match(managed, /fallow fix --yes --no-create-config/);
+  assert.ok(managed.indexOf('fallow fix --dry-run') < managed.indexOf('fallow fix --yes'));
+  assert.match(managed, /global preview includes an unrelated or unsafe edit/);
+  assert.match(managed, /staged security candidate is verified or unresolved/);
   assert.match(synchronized, /^# Project policy/);
   assert.equal(extractManagedBlock(synchronized), managed);
 });
