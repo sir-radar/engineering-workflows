@@ -150,6 +150,10 @@ const startMarkers = [...agents.matchAll(/<!-- frontend-workflows:start version=
 const endMarkers = [...agents.matchAll(/<!-- frontend-workflows:end -->/g)];
 check(startMarkers.length === 1 && endMarkers.length === 1, 'AGENTS.md must contain exactly one managed policy block');
 check(startMarkers[0]?.[1] === pluginBaseVersion, 'managed policy version must match plugin base version');
+check(agents.includes('## Task branch gate'), 'managed policy must define the task branch gate');
+check(agents.includes('before the first repository edit for every new task'), 'managed policy must require branches before new task edits');
+check(agents.includes('ft/<short-kebab-case-task>'), 'managed policy must define the fallback task branch convention');
+check(agents.includes('Do not commit task work directly to `main`, `master`, or another default/integration branch'), 'managed policy must protect default branches');
 check(agents.includes('## Fallow commit gate'), 'managed policy must define the Fallow commit gate');
 check(agents.includes('| `$fallow` |'), 'managed policy must route complete analysis through $fallow');
 check(agents.includes('FALLOW_AGENT_SOURCE=codex fallow --format json --quiet --explain 2>/dev/null || true'), 'managed policy must include the complete Fallow command');

@@ -9,7 +9,7 @@
 - Do not add app code, project-specific assets, MCP servers, hooks, external runtime dependencies, or remote publishing without explicit scope.
 - Update shared project policy only inside the managed block. `scripts/sync-policy.mjs` distributes that block without overwriting consumer-owned instructions.
 
-<!-- frontend-workflows:start version=0.2.0 -->
+<!-- frontend-workflows:start version=0.3.0 -->
 # Evidence-Driven Frontend Workflow Policy
 
 ## Mission and scope
@@ -97,10 +97,21 @@ Run the repository's real equivalents of:
 - production build;
 - relevant backend or contract checks;
 - browser console and failed-network inspection;
-- measured performance budgets when the surface changes materially.
+- measured performance budgets when the surface changes materially;
 - complete Fallow analysis against the final state of every code-bearing commit.
 
 Do not claim a check that did not run successfully against the final code state. Do not weaken configuration, delete coverage, approve changed baselines blindly, or suppress failures to pass.
+
+## Task branch gate
+
+Create or switch to a dedicated branch before the first repository edit for every new task that may modify files. Treat a task as new when it is independently reviewable or materially different from the current branch's purpose.
+
+1. Inspect the current branch, upstream and integration base, status, recent commits, and relevant diff before branching.
+2. Continue the current branch only for a direct follow-up within the same task and acceptance criteria. Do not create a branch for read-only work or a separate branch for every commit within one task.
+3. For a new task, branch from the correct current integration branch or an explicitly required parent before editing. Follow the repository naming convention; when none exists, use `ft/<short-kebab-case-task>`.
+4. Do not commit task work directly to `main`, `master`, or another default/integration branch unless the user explicitly requests that exception.
+5. If unrelated uncommitted work, unpushed commits, or an ambiguous base prevents safe branching, do not stash, reset, move, or carry the work silently. Use a separate worktree when safe and authorized; otherwise stop and request direction.
+6. After switching, verify the active branch and starting point. Report the branch, base, commits, verification, and remaining worktree state at handoff.
 
 ## Fallow commit gate
 
@@ -120,6 +131,7 @@ Run the complete Fallow static flow for every commit containing code or code-aff
 ## Git safety and collaboration
 
 - Keep branches and commits scoped to one coherent concern. Preserve unrelated changes and avoid destructive Git operations or history rewriting without explicit authorization.
+- Treat the task branch gate as mandatory before repository edits; a later commit does not repair work that began on the wrong branch.
 - Review staged and unstaged diffs before each commit. Commit only complete, verified units with truthful imperative messages.
 - Treat the Fallow commit gate as mandatory for every code-bearing commit; never bypass it with `--no-verify` or a documentation-only classification that does not match the staged diff.
 - Do not push, publish, merge, rebase, amend, force-push, or create external resources unless requested.

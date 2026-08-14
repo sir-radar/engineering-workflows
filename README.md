@@ -4,6 +4,8 @@ A local Codex plugin and reusable project policy for evidence-driven frontend im
 
 The managed policy also requires the complete Fallow static flow—dead code, duplication, and health—before every code-bearing commit.
 
+Every new repository-mutating task must also begin on a dedicated task branch. Existing branches continue only for direct follow-ups in the same task; read-only work does not create a branch.
+
 ## Included skills
 
 - `$figma-ui-implementation` — one-shot Figma or reference-image implementation.
@@ -30,6 +32,10 @@ FALLOW_AGENT_SOURCE=codex fallow --format json --quiet --explain 2>/dev/null || 
 ```
 
 Review the combined JSON envelope and block the commit for an unavailable/runtime-failing analyzer or an unresolved error-severity finding caused by the change. Documentation-only and policy-only commits are exempt. Rerun after any relevant edit; never use automatic fixes, suppressions, or `--no-verify` merely to pass.
+
+## Task branches
+
+Before the first edit for a new task, inspect the repository state and branch from the correct integration base. Follow the repository convention or use `ft/<short-kebab-case-task>` when none exists. Do not commit task work directly to the default branch without an explicit user exception, and do not carry unrelated dirty work across branches.
 
 The official Codex skill and plugin validators are also run before release.
 
