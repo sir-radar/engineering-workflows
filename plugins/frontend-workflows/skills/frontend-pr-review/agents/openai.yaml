@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend PR Review"
+  short_description: "Adversarially review frontend pull requests"
+  default_prompt: "Use $frontend-pr-review to perform a findings-first adversarial review of this frontend change."
