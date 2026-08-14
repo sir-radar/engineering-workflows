@@ -15,6 +15,8 @@ Use repository policy when it defines a stricter order. Otherwise resolve confli
 
 Never average conflicting values. Determine whether the conflict is a state, variant, breakpoint, mode, or stale artifact.
 
+Use only sources that exist. Missing Figma file access is not a blocker when supplied screenshots and layer CSS define the requested visible surface. Limit fidelity claims to the viewports, states, and assets those sources prove.
+
 ## Ambiguity
 
 - **Blocking:** changes behavior, content, asset identity, data contract, semantics, or material layout. Ask before implementing that portion.

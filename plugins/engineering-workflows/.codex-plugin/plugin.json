@@ -14,7 +14,7 @@
     "category": "Developer Tools",
     "capabilities": [],
     "defaultPrompt": [
-      "Implement this Figma UI exactly.",
+      "Implement this UI from Figma or screenshots and layer CSS.",
       "Audit this frontend pull request.",
       "Map this large, uncertain effort into decision tickets."
     ]
