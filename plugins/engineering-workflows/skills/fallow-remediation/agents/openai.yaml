@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fallow Remediation"
+  short_description: "Safely fix Fallow and security findings"
+  default_prompt: "Use $fallow-remediation to analyze and safely remediate Fallow findings before committing."

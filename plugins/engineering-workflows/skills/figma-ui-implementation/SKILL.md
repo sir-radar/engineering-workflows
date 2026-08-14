@@ -25,7 +25,7 @@ Own the complete evidence-to-code loop. Build exactly the requested surface and 
 11. Load `$frontend-performance-budget`; measure changed routes and interactions. Fix only observed or budgeted regressions.
 12. Run repository lint, format check, strict typecheck, focused tests, browser tests, production build, console/network checks, and [adversarial-self-check.md](references/adversarial-self-check.md).
 13. Complete `assets/verification-record.md` against the final code state.
-14. Before every code-bearing commit, load `$fallow` and run its complete root analysis against the coherent staged change. Review dead-code, duplication, and health findings; block the commit for an unavailable/runtime-failing analyzer or an unresolved error-severity finding caused by the change. Rerun after any relevant edit.
+14. Before every code-bearing commit, load `$fallow` and `$fallow-remediation`. Run the complete root analysis and staged-diff security scan against the coherent staged change. Prefer guarded automatic fixes when their individual actions are auto-fixable, task-scoped, behavior-preserving, and fully previewed; remediate verified security and health findings manually. Inspect and validate every mutation, then restage and rerun both analyses after any relevant edit.
 15. Load `$frontend-pr-review` for a read-only final pass. Return blocking findings to the owning workflow and repeat affected gates before handoff.
 
 Proceed continuously unless design evidence is materially ambiguous, a required asset or permission is missing, a destructive or external action needs authorization, or repository policy requires a review boundary.

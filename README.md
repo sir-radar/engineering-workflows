@@ -1,10 +1,10 @@
 # Codex Engineering Workflows
 
-A local Codex plugin and reusable project policy for large-effort decision mapping, evidence-driven frontend implementation, accessibility, visual regression, performance, API states, design-system governance, adversarial review, and token-efficient communication.
+A local Codex plugin and reusable project policy for large-effort decision mapping, evidence-driven frontend implementation, accessibility, visual regression, performance, API states, design-system governance, guarded Fallow remediation, adversarial review, and token-efficient communication.
 
 Caveman loads implicitly for every task, defaults to its `full` compression level, preserves technical accuracy, and yields to explicit style, clarity, safety, and required progress instructions.
 
-The managed policy also requires the complete Fallow static flow—dead code, duplication, and health—before every code-bearing commit.
+The managed policy also requires the complete Fallow static flow—dead code, duplication, and health—plus a separate staged-diff security scan before every code-bearing commit. It prefers automatic fixes when a dry-run proves that every edit is task-scoped, behavior-preserving, and testable; ambiguous, broad, or security-sensitive changes stay review-gated.
 
 Every new repository-mutating task must also begin on a dedicated task branch. Existing branches continue only for direct follow-ups in the same task; read-only work does not create a branch.
 
@@ -18,6 +18,7 @@ Every new repository-mutating task must also begin on a dedicated task branch. E
 - `$frontend-performance-budget` — measured performance and explicit budgets.
 - `$design-system-governance` — reuse, extension, token, variant, and API decisions.
 - `$api-state-contracts` — backend contracts, fixtures, states, races, and rollback.
+- `$fallow-remediation` — guarded automatic fixes, health remediation, security investigation, and final evidence.
 - `$frontend-pr-review` — read-only findings-first frontend review.
 
 Wayfinder is intentionally manual-only. Invoke `$wayfinder` to chart a foggy effort or continue an existing map. It defaults to a concurrency-safe local Markdown tracker unless project policy or the user explicitly selects GitHub Issues; GitHub mutations are previewed before authorization. The self-contained adaptation preserves the pinned MIT provenance of [Matt Pocock's Wayfinder](https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder).
@@ -31,13 +32,21 @@ node --test
 node scripts/validate-toolkit.mjs
 ```
 
-Before every commit containing code or code-affecting configuration, stage the coherent change and run the complete flow from that project root:
+Before every commit containing code or code-affecting configuration, stage the coherent change and run the complete analysis and security flow from that project root:
 
 ```bash
 FALLOW_AGENT_SOURCE=codex fallow --format json --quiet --explain 2>/dev/null || true
+git diff --cached --unified=0 | FALLOW_AGENT_SOURCE=codex fallow security --diff-file - --format json --quiet 2>/dev/null || true
 ```
 
-Review the combined JSON envelope and block the commit for an unavailable/runtime-failing analyzer or an unresolved error-severity finding caused by the change. Documentation-only and policy-only commits are exempt. Rerun after any relevant edit; never use automatic fixes, suppressions, or `--no-verify` merely to pass.
+Review both JSON envelopes. Preview Fallow-native fixes before applying them:
+
+```bash
+FALLOW_AGENT_SOURCE=codex fallow fix --dry-run --no-create-config --format json --quiet 2>/dev/null || true
+FALLOW_AGENT_SOURCE=codex fallow fix --yes --no-create-config --format json --quiet 2>/dev/null || true
+```
+
+Run the apply command only when every previewed edit is eligible. If a global preview includes unrelated or unsafe work, make only the proven-safe targeted edits. Investigate every security candidate; fix verified issues with regression tests and rerun both analyses. Block for unavailable or invalid analysis, unresolved attributable errors, unresolved staged security candidates or relevant blind spots, and any fix that changes behavior or fails validation. Documentation-only and policy-only commits are exempt. Never suppress, weaken rules, create configuration, or use `--no-verify` merely to pass.
 
 ## Task branches
 
@@ -54,7 +63,7 @@ codex plugin marketplace add "$(pwd)"
 codex plugin add engineering-workflows@engineering-workflows
 ```
 
-Start a new Codex task after installation so the nine skills and Caveman's implicit activation are discovered.
+Start a new Codex task after installation so the ten skills and Caveman's implicit activation are discovered.
 
 ## Sync policy into a project
 

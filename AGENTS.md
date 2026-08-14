@@ -9,7 +9,7 @@
 - Do not add app code, project-specific assets, MCP servers, hooks, external runtime dependencies, or remote publishing without explicit scope.
 - Update shared project policy only inside the managed block. `scripts/sync-policy.mjs` distributes that block without overwriting consumer-owned instructions.
 
-<!-- engineering-workflows:start version=0.6.0 -->
+<!-- engineering-workflows:start version=0.7.0 -->
 # Evidence-Driven Frontend Workflow Policy
 
 ## Mission and scope
@@ -55,7 +55,8 @@ Use only installed skills whose trigger applies. Specialist skills own workflow 
 | `$visual-regression` | Deterministic screenshots, Figma comparison, baselines, and diff diagnosis | Pixel thresholds never excuse structural differences |
 | `$frontend-accessibility-audit` | WCAG 2.2 AA automated and manual audit plus retesting | Automated scans are not conformance proof |
 | `$frontend-performance-budget` | Field/lab metrics, bundles, rendering profiles, and regression budgets | Optimize measured problems, not intuition |
-| `$fallow` | Complete dead-code, duplication, and health analysis before code-bearing commits | Findings require review; never auto-fix or suppress merely to pass |
+| `$fallow` | Complete dead-code, duplication, and health analysis before code-bearing commits | Own analyzer semantics and evidence; remediation belongs to `$fallow-remediation` |
+| `$fallow-remediation` | Guarded automatic fixes plus health and security remediation before code-bearing commits | Auto-fix only task-scoped, proven behavior-neutral changes and validate every mutation |
 | `$frontend-pr-review` | Final read-only adversarial frontend review | Findings-first; return fixes to the owning workflow |
 
 For a Figma or image-to-UI task: run implementation, applicable design/API checks, visual regression, accessibility audit, measured performance, and final PR review in that order. A required failure returns to its owning workflow and invalidates affected evidence.
@@ -91,7 +92,7 @@ Keep compact working artifacts in task memory or a temporary directory unless re
 - design-system decision record;
 - Wayfinder decision map, claim/event ledger, and cleared-route handoff when explicitly invoked;
 - final verification record and PR-review verdict.
-- complete Fallow analysis envelope and finding disposition for code commits.
+- complete Fallow remediation record, including full analysis, staged-diff security evidence, fixes, validation, and finding disposition for code commits.
 
 Every artifact identifies the code revision and dirty diff it covers. Treat it as stale after an affected change.
 
@@ -120,7 +121,7 @@ Run the repository's real equivalents of:
 - relevant backend or contract checks;
 - browser console and failed-network inspection;
 - measured performance budgets when the surface changes materially;
-- complete Fallow analysis against the final state of every code-bearing commit.
+- complete Fallow analysis and staged-diff security scan against the final state of every code-bearing commit.
 
 Do not claim a check that did not run successfully against the final code state. Do not weaken configuration, delete coverage, approve changed baselines blindly, or suppress failures to pass.
 
@@ -135,33 +136,54 @@ Create or switch to a dedicated branch before the first repository edit for ever
 5. If unrelated uncommitted work, unpushed commits, or an ambiguous base prevents safe branching, do not stash, reset, move, or carry the work silently. Use a separate worktree when safe and authorized; otherwise stop and request direction.
 6. After switching, verify the active branch and starting point. Report the branch, base, commits, verification, and remaining worktree state at handoff.
 
-## Fallow commit gate
+## Fallow remediation gate
 
-Run the complete Fallow static flow for every commit containing code or code-affecting configuration, including executable frontend source, styles, schemas, manifests, lockfiles, and build or test configuration. Documentation-only and policy-only commits are exempt.
+Run guarded Fallow remediation for every commit containing code or code-affecting configuration, including executable frontend source, styles, schemas, manifests, lockfiles, and build or test configuration. Prefer automatic fixes when evidence proves they are task-scoped and behavior-preserving. Documentation-only and policy-only commits are exempt.
 
-1. Load and follow the installed `$fallow` skill.
+1. Load and follow the installed `$fallow` and `$fallow-remediation` skills.
 2. Stage the coherent commit, ensure no relevant unstaged edit makes the analysis scope ambiguous, and run the full repository analysis from the repository root:
 
    ```bash
    FALLOW_AGENT_SOURCE=codex fallow --format json --quiet --explain 2>/dev/null || true
    ```
 
-3. Require the root JSON envelope to identify the combined full analysis. Review dead-code, duplication, and health results; distinguish pre-existing warnings from findings introduced by the staged change.
-4. Block the commit when Fallow is unavailable, returns a runtime-error envelope, or leaves an error-severity finding attributable to the commit. Do not auto-fix, suppress, or reconfigure a rule merely to pass.
-5. Record the command, analyzed revision and dirty state, finding disposition, and any accepted pre-existing warning. Any later relevant edit invalidates the result and requires a rerun before commit.
+3. Require the root JSON envelope to identify the combined full analysis. Run security separately against the staged patch because it is not part of the bare combined command:
+
+   ```bash
+   git diff --cached --unified=0 | FALLOW_AGENT_SOURCE=codex fallow security --diff-file - --format json --quiet 2>/dev/null || true
+   ```
+
+4. Require a valid security envelope. Review dead-code, duplication, health, security candidates, unresolved imports, and unresolved call edges; distinguish task-introduced findings, behavior-neutral pre-existing findings in task-owned files, and unrelated repository findings.
+5. For each native action, require its specific `auto_fixable` value and preview before mutation:
+
+   ```bash
+   FALLOW_AGENT_SOURCE=codex fallow fix --dry-run --no-create-config --format json --quiet 2>/dev/null || true
+   ```
+
+   Apply the preview automatically only when every edit is task-scoped, behavior-preserving, unrelated-work-free, and deterministically testable:
+
+   ```bash
+   FALLOW_AGENT_SOURCE=codex fallow fix --yes --no-create-config --format json --quiet 2>/dev/null || true
+   ```
+
+   If the global preview includes an unrelated or unsafe edit, reject the global apply and make only eligible targeted edits with normal repository editing tools. Never create configuration, suppress findings, weaken rules, update baselines, or add ignores merely to pass.
+6. Investigate health recommendations and security candidates before changing behavior. Manually remediate verified security issues and add focused regression tests. Enable include-required secret categories through repository-owned Fallow configuration only when configuration editing is authorized and existing settings can be preserved.
+7. Inspect every mutation and run focused tests plus applicable lint, typecheck, build, browser, contract, accessibility, and security checks. Restage and rerun both final analysis commands after any relevant edit; stop on regression, uncertain behavior, expanding scope, repeated findings, or fix oscillation.
+8. Block the commit when Fallow is unavailable, an envelope is invalid or runtime-failing, an attributable error-severity finding remains, a staged security candidate is verified or unresolved, a relevant blind spot remains, or a proposed fix fails validation.
+9. Record the commands, analyzed revision and dirty state, previews, applied and skipped fixes, validation, security coverage, blind spots, finding dispositions, and any accepted pre-existing warning. Any later relevant edit invalidates the record.
 
 ## Git safety and collaboration
 
 - Keep branches and commits scoped to one coherent concern. Preserve unrelated changes and avoid destructive Git operations or history rewriting without explicit authorization.
 - Treat the task branch gate as mandatory before repository edits; a later commit does not repair work that began on the wrong branch.
 - Review staged and unstaged diffs before each commit. Commit only complete, verified units with truthful imperative messages.
-- Treat the Fallow commit gate as mandatory for every code-bearing commit; never bypass it with `--no-verify` or a documentation-only classification that does not match the staged diff.
+- Treat the Fallow remediation gate as mandatory for every code-bearing commit; never bypass it with `--no-verify` or a documentation-only classification that does not match the staged diff.
 - Do not push, publish, merge, rebase, amend, force-push, or create external resources unless requested.
 - Share concise progress and blockers during long work. Pause only for missing evidence, material scope decisions, required review boundaries, or external/destructive authorization.
 
 ## Completion
 
-Work is complete only when requirements and evidence map to implemented behavior; applicable states and responsive layouts are intentional; accessibility and performance budgets are verified; visual differences are explained; tests and builds pass; required Fallow analysis covers the final code state; the final diff is focused; and independent review has no unresolved blocking finding.
+Work is complete only when requirements and evidence map to implemented behavior; applicable states and responsive layouts are intentional; accessibility and performance budgets are verified; visual differences are explained; tests and builds pass; required Fallow remediation and security evidence covers the final code state; the final diff is focused; and independent review has no unresolved blocking finding.
 
 Report the working outcome, important files, commands and real results, viewports and states checked, accessibility and performance evidence, approved departures, and anything incomplete ordered by user impact.
 <!-- engineering-workflows:end -->
