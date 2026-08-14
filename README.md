@@ -12,7 +12,7 @@ Every new repository-mutating task must also begin on a dedicated task branch. E
 
 - `$caveman` — automatic concise communication with selectable intensity.
 - `$wayfinder` — explicit-only mapping of uncertain multi-session efforts into decision tickets.
-- `$figma-ui-implementation` — one-shot Figma or reference-image implementation.
+- `$figma-ui-implementation` — one-shot Figma or screenshot-plus-layer-CSS implementation.
 - `$frontend-accessibility-audit` — WCAG 2.2 AA audit and remediation verification.
 - `$visual-regression` — deterministic screenshots and reference comparison.
 - `$frontend-performance-budget` — measured performance and explicit budgets.

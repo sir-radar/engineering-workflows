@@ -1,5 +1,7 @@
 # Figma inspection checklist
 
+Use this checklist only when a Figma file or exact node is available. For screenshot-only evidence with copied Figma CSS, use [screenshot-and-layer-css.md](screenshot-and-layer-css.md) and do not require a Figma call.
+
 Inspect the exact node and relevant nested instances:
 
 - file key, node ID, frame dimensions, export scale, theme, and state;

@@ -157,7 +157,10 @@ for (const routedSkill of [
 ]) {
   check(orchestrator.includes(routedSkill), `figma-ui-implementation must route to ${routedSkill}`);
 }
-check(orchestrator.includes('figma-design-to-code'), 'figma-ui-implementation must require the Figma design-to-code prerequisite');
+check(orchestrator.includes('figma-design-to-code'), 'figma-ui-implementation must require the Figma design-to-code prerequisite for live Figma calls');
+check(orchestrator.includes('[screenshot-and-layer-css.md](references/screenshot-and-layer-css.md)'), 'figma-ui-implementation must route screenshot-plus-layer-CSS work');
+check(orchestrator.includes('do not require live Figma access'), 'figma-ui-implementation must support screenshot-plus-layer-CSS work without Figma access');
+check(orchestrator.includes('ask the user for the icon file'), 'figma-ui-implementation must request missing dedicated icons');
 check(orchestrator.includes('[react.md](references/react.md)'), 'figma-ui-implementation must route React work');
 check(orchestrator.includes('[vue.md](references/vue.md)'), 'figma-ui-implementation must route Vue work');
 check(orchestrator.includes('for every data-backed surface'), 'API-state routing must remain conditional on data-backed UI');

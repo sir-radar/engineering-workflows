@@ -3,12 +3,15 @@
 - Code revision and starting dirty state:
 - Acceptance criteria:
 - Source precedence:
-- Figma file and exact node IDs inspected:
-- Reference files with viewport, state, theme, and scale:
+- Evidence mode: live Figma, screenshots plus layer CSS, or mixed:
+- Figma file and exact node IDs inspected, or not available:
+- Screenshot files with pixel size, viewport or scale assumption, state, and theme:
+- Layer CSS blocks and visible-region mapping:
 - Required pages, components, variants, interactions, and breakpoints:
 - Layout and geometry map:
 - Typography and token map:
 - Assets, fonts, checksums, provenance, and component mapping:
+- Missing dedicated icons requested, provided, or blocked:
 - Backend/data contracts affecting rendering:
 - State-matrix location:
 - Ambiguities classified as blocking, verifiable, or incidental:
