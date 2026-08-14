@@ -39,11 +39,11 @@ function stripOwnedAccessibility(attributes) {
 
 function dynamicValue(value, ids, variable) {
   let result = value;
-  const placeholder = `\${${variable}}`;
+  const interpolation = `\${${variable}}`;
   for (const id of ids) {
     result = result
-      .replaceAll(`url(#${id})`, `url(#${placeholder}-${id})`)
-      .replaceAll(`#${id}`, `#${placeholder}-${id}`);
+      .replaceAll(`url(#${id})`, `url(#${interpolation}-${id})`)
+      .replaceAll(`#${id}`, `#${interpolation}-${id}`);
   }
   return result;
 }
