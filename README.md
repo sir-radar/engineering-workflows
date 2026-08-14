@@ -1,6 +1,8 @@
 # Codex Frontend Workflows
 
-A local Codex plugin and reusable project policy for evidence-driven frontend implementation, accessibility, visual regression, performance, API states, design-system governance, and adversarial review.
+A local Codex plugin and reusable project policy for evidence-driven frontend implementation, accessibility, visual regression, performance, API states, design-system governance, adversarial review, and token-efficient communication.
+
+Caveman loads implicitly for every task, defaults to its `full` compression level, preserves technical accuracy, and yields to explicit style, clarity, safety, and required progress instructions.
 
 The managed policy also requires the complete Fallow static flow—dead code, duplication, and health—before every code-bearing commit.
 
@@ -8,6 +10,7 @@ Every new repository-mutating task must also begin on a dedicated task branch. E
 
 ## Included skills
 
+- `$caveman` — automatic concise communication with selectable intensity.
 - `$figma-ui-implementation` — one-shot Figma or reference-image implementation.
 - `$frontend-accessibility-audit` — WCAG 2.2 AA audit and remediation verification.
 - `$visual-regression` — deterministic screenshots and reference comparison.
@@ -48,7 +51,7 @@ codex plugin marketplace add "$(pwd)"
 codex plugin add frontend-workflows@frontend-workflow-toolkit
 ```
 
-Start a new Codex task after installation so the seven skills are discovered.
+Start a new Codex task after installation so the eight skills and Caveman's implicit activation are discovered.
 
 ## Sync policy into a project
 
