@@ -1,0 +1,4 @@
+interface:
+  display_name: "API State Contracts"
+  short_description: "Turn API contracts into complete UI states"
+  default_prompt: "Use $api-state-contracts to derive deterministic frontend states and tests from this API contract."
