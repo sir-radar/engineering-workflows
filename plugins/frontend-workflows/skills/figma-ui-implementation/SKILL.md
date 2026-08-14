@@ -1,0 +1,40 @@
+---
+name: figma-ui-implementation
+description: Implement production frontend interfaces exactly from Figma URLs or node IDs, reference images, exported assets, and Figma CSS in an existing React or Vue stack. Use for one-shot design-to-code work that requires evidence manifests, exact design inspection, state completeness, authoritative assets, semantic implementation, deterministic visual comparison, accessibility, measured performance, and adversarial final review.
+---
+
+# Figma UI Implementation
+
+Own the complete evidence-to-code loop. Build exactly the requested surface and no speculative features, copy, states, assets, dependencies, or abstractions.
+
+## One-shot workflow
+
+1. Read every applicable `AGENTS.md`, requirement, design brief, repository convention, current diff, package manifest, route, test, data contract, token, component, and asset before editing.
+2. Establish the acceptance checklist and source precedence. Classify uncertainty as blocking, verifiable, or incidental using [evidence-workflow.md](references/evidence-workflow.md).
+3. Before any Figma design-context call, load and follow the available `figma-design-to-code` prerequisite skill. Use the exact file and node IDs. Inspect with [figma-inspection.md](references/figma-inspection.md).
+4. Create `assets/evidence-manifest.md` and keep it current. Inventory repository assets with `scripts/inventory-assets.mjs`.
+5. Load `$design-system-governance` to map Figma components and decide reuse, extension, or local creation when a component decision exists.
+6. Load `$api-state-contracts` for every data-backed surface. Complete `assets/state-matrix.md`; mark states implemented, not applicable with evidence, or blocked.
+7. Read [asset-and-svg.md](references/asset-and-svg.md). Validate SVGs with `scripts/validate-svg.mjs` and convert exact assets with `scripts/convert-svg-component.mjs` when the project does not already provide a matching component.
+8. Read [react.md](references/react.md) or [vue.md](references/vue.md), never both unless the repository contains both target surfaces. Implement through the existing stack, TDD, semantic HTML, and real behavior.
+9. Load `$visual-regression`; capture and remediate every required viewport, state, and variant with deterministic data.
+10. Load `$frontend-accessibility-audit`; fix applicable WCAG 2.2 AA failures and rerun affected checks.
+11. Load `$frontend-performance-budget`; measure changed routes and interactions. Fix only observed or budgeted regressions.
+12. Run repository lint, format check, strict typecheck, focused tests, browser tests, production build, console/network checks, and [adversarial-self-check.md](references/adversarial-self-check.md).
+13. Complete `assets/verification-record.md` against the final code state.
+14. Load `$frontend-pr-review` for a read-only final pass. Return blocking findings to the owning workflow and repeat affected gates before handoff.
+
+Proceed continuously unless design evidence is materially ambiguous, a required asset or permission is missing, a destructive or external action needs authorization, or repository policy requires a review boundary.
+
+## Evidence rules
+
+- Treat Figma-generated code as measurement evidence, not production code to paste.
+- Do not guess copy, assets, behavior, data, responsive intent, or accessible names.
+- Do not substitute icon libraries, emoji, CSS drawings, generated images, or similar frames for missing authoritative assets.
+- Do not implement the interface as a screenshot, canvas replica, absolute-positioned frame dump, or inaccessible interactive `div` tree.
+- Preserve intentional clipping, overflow, fixed or sticky placement, stacking, and breakpoint condensation.
+- Ask only when a missing fact materially changes user-visible output and cannot be derived from evidence.
+
+## Handoff contract
+
+Lead with the working outcome. Report important components, commands and real results, visual viewports and states, accessibility checks, performance measurements, approved departures, blockers, and the focused Git diff. Never claim a check that did not run against the final code state.

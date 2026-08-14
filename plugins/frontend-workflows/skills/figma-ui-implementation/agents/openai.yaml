@@ -1,0 +1,4 @@
+interface:
+  display_name: "Figma UI Implementation"
+  short_description: "Implement evidence-exact Figma interfaces"
+  default_prompt: "Use $figma-ui-implementation to implement this Figma or reference-image UI exactly in the existing stack."
