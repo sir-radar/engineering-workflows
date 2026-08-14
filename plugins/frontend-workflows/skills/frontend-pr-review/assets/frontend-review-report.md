@@ -16,6 +16,7 @@ For each finding:
 - Requirements and changed surfaces:
 - Commands and raw artifacts inspected:
 - Specialist evidence sampled:
+- Fallow combined analysis and finding disposition:
 - Pre-existing or out-of-scope observations:
 - Residual risk and unverified scope:
 

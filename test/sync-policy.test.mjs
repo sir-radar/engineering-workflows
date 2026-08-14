@@ -11,7 +11,7 @@ import {
   validateTarget,
 } from '../scripts/sync-policy.mjs';
 
-const block = `<!-- frontend-workflows:start version=0.1.0 -->\n# Shared policy\n${END_MARKER}`;
+const block = `<!-- frontend-workflows:start version=0.3.0 -->\n# Shared policy\n${END_MARKER}`;
 
 test('extracts exactly one managed block', () => {
   assert.equal(extractManagedBlock(`# Local\n\n${block}\n`), block);
@@ -57,4 +57,19 @@ test('rejects unsafe target scopes', async () => {
   await assert.rejects(() => validateTarget(toolkit, toolkit), /itself/);
   await assert.rejects(() => validateTarget('/definitely/missing/frontend-workflows', toolkit), /does not exist/);
   await assert.rejects(() => validateTarget('*', toolkit), /glob syntax/);
+});
+
+test('distributes the current task-branch and Fallow gates intact', async () => {
+  const source = await readFile(new URL('../AGENTS.md', import.meta.url), 'utf8');
+  const managed = extractManagedBlock(source);
+  const synchronized = synchronizeContent('# Project policy\n', managed);
+
+  assert.match(managed, /## Task branch gate/);
+  assert.match(managed, /ft\/<short-kebab-case-task>/);
+  assert.match(managed, /Do not commit task work directly to `main`/);
+  assert.match(managed, /## Fallow commit gate/);
+  assert.match(managed, /\$fallow/);
+  assert.match(managed, /fallow --format json --quiet --explain 2>\/dev\/null \|\| true/);
+  assert.match(synchronized, /^# Project policy/);
+  assert.equal(extractManagedBlock(synchronized), managed);
 });
