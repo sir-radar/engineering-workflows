@@ -1,15 +1,15 @@
 {
-  "name": "frontend-workflows",
-  "version": "0.5.0+codex.20260814080854",
+  "name": "engineering-workflows",
+  "version": "0.6.0+codex.20260814081649",
   "description": "Decision mapping plus evidence-driven frontend implementation, audit, review, and concise communication workflows for Codex.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
-    "displayName": "Frontend Workflows",
+    "displayName": "Engineering Workflows",
     "shortDescription": "Build, audit, and compress frontend workflows.",
-    "longDescription": "Frontend Workflows provides explicit large-effort Wayfinder planning, implicitly activated Caveman communication, evidence-driven Figma implementation, accessibility, visual regression, performance, API-state, design-system, task-branch and Fallow commit gates, and pull-request review skills.",
+    "longDescription": "Engineering Workflows provides explicit large-effort Wayfinder planning, implicitly activated Caveman communication, evidence-driven Figma implementation, accessibility, visual regression, performance, API-state, design-system, task-branch and Fallow commit gates, and pull-request review skills.",
     "developerName": "Local developer",
     "category": "Developer Tools",
     "capabilities": [],

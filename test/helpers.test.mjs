@@ -5,10 +5,10 @@ import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { arbitrateClaims } from '../plugins/frontend-workflows/skills/wayfinder/scripts/wayfinder-ledger.mjs';
+import { arbitrateClaims } from '../plugins/engineering-workflows/skills/wayfinder/scripts/wayfinder-ledger.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
-const skills = join(root, 'plugins', 'frontend-workflows', 'skills');
+const skills = join(root, 'plugins', 'engineering-workflows', 'skills');
 
 function run(script, args) {
   return spawnSync(process.execPath, [script, ...args], { encoding: 'utf8' });

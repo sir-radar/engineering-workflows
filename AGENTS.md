@@ -1,4 +1,4 @@
-# Frontend Workflows Toolkit Agent Guide
+# Engineering Workflows Toolkit Agent Guide
 
 ## Toolkit maintenance
 
@@ -9,7 +9,7 @@
 - Do not add app code, project-specific assets, MCP servers, hooks, external runtime dependencies, or remote publishing without explicit scope.
 - Update shared project policy only inside the managed block. `scripts/sync-policy.mjs` distributes that block without overwriting consumer-owned instructions.
 
-<!-- frontend-workflows:start version=0.5.0 -->
+<!-- engineering-workflows:start version=0.6.0 -->
 # Evidence-Driven Frontend Workflow Policy
 
 ## Mission and scope
@@ -164,4 +164,4 @@ Run the complete Fallow static flow for every commit containing code or code-aff
 Work is complete only when requirements and evidence map to implemented behavior; applicable states and responsive layouts are intentional; accessibility and performance budgets are verified; visual differences are explained; tests and builds pass; required Fallow analysis covers the final code state; the final diff is focused; and independent review has no unresolved blocking finding.
 
 Report the working outcome, important files, commands and real results, viewports and states checked, accessibility and performance evidence, approved departures, and anything incomplete ordered by user impact.
-<!-- frontend-workflows:end -->
+<!-- engineering-workflows:end -->

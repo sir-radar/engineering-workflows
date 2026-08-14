@@ -1,4 +1,4 @@
-# Codex Frontend Workflows
+# Codex Engineering Workflows
 
 A local Codex plugin and reusable project policy for large-effort decision mapping, evidence-driven frontend implementation, accessibility, visual regression, performance, API states, design-system governance, adversarial review, and token-efficient communication.
 
@@ -51,7 +51,7 @@ From the repository root:
 
 ```bash
 codex plugin marketplace add "$(pwd)"
-codex plugin add frontend-workflows@frontend-workflow-toolkit
+codex plugin add engineering-workflows@engineering-workflows
 ```
 
 Start a new Codex task after installation so the nine skills and Caveman's implicit activation are discovered.
@@ -70,15 +70,15 @@ Create or update only the managed policy block:
 node scripts/sync-policy.mjs --target /absolute/path/to/project --apply
 ```
 
-The synchronizer preserves all project-owned instructions outside the `frontend-workflows` markers. It rejects filesystem roots, the home directory, missing paths, glob syntax, the toolkit itself, and malformed or duplicate markers.
+The synchronizer preserves all project-owned instructions outside the `engineering-workflows` markers. It migrates one valid legacy `frontend-workflows` block in place, and rejects filesystem roots, the home directory, missing paths, glob syntax, the toolkit itself, and malformed, mixed, or duplicate markers.
 
 ## Update a local installation
 
 After changing and validating the plugin, use Codex's plugin cachebuster helper, then reinstall from the configured local marketplace:
 
 ```bash
-python3 ~/.codex/skills/.system/plugin-creator/scripts/update_plugin_cachebuster.py plugins/frontend-workflows
-codex plugin add frontend-workflows@frontend-workflow-toolkit
+python3 ~/.codex/skills/.system/plugin-creator/scripts/update_plugin_cachebuster.py plugins/engineering-workflows
+codex plugin add engineering-workflows@engineering-workflows
 ```
 
 Open a new Codex task after reinstalling. When this repository gains a remote, pull and validate changes before reinstalling or syncing policy.
