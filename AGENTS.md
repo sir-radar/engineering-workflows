@@ -9,7 +9,7 @@
 - Do not add app code, project-specific assets, MCP servers, hooks, external runtime dependencies, or remote publishing without explicit scope.
 - Update shared project policy only inside the managed block. `scripts/sync-policy.mjs` distributes that block without overwriting consumer-owned instructions.
 
-<!-- frontend-workflows:start version=0.1.0 -->
+<!-- frontend-workflows:start version=0.2.0 -->
 # Evidence-Driven Frontend Workflow Policy
 
 ## Mission and scope
@@ -53,6 +53,7 @@ Use only installed skills whose trigger applies. Specialist skills own workflow 
 | `$visual-regression` | Deterministic screenshots, Figma comparison, baselines, and diff diagnosis | Pixel thresholds never excuse structural differences |
 | `$frontend-accessibility-audit` | WCAG 2.2 AA automated and manual audit plus retesting | Automated scans are not conformance proof |
 | `$frontend-performance-budget` | Field/lab metrics, bundles, rendering profiles, and regression budgets | Optimize measured problems, not intuition |
+| `$fallow` | Complete dead-code, duplication, and health analysis before code-bearing commits | Findings require review; never auto-fix or suppress merely to pass |
 | `$frontend-pr-review` | Final read-only adversarial frontend review | Findings-first; return fixes to the owning workflow |
 
 For a Figma or image-to-UI task: run implementation, applicable design/API checks, visual regression, accessibility audit, measured performance, and final PR review in that order. A required failure returns to its owning workflow and invalidates affected evidence.
@@ -68,6 +69,7 @@ Keep compact working artifacts in task memory or a temporary directory unless re
 - API-state and contract report;
 - design-system decision record;
 - final verification record and PR-review verdict.
+- complete Fallow analysis envelope and finding disposition for code commits.
 
 Every artifact identifies the code revision and dirty diff it covers. Treat it as stale after an affected change.
 
@@ -96,19 +98,36 @@ Run the repository's real equivalents of:
 - relevant backend or contract checks;
 - browser console and failed-network inspection;
 - measured performance budgets when the surface changes materially.
+- complete Fallow analysis against the final state of every code-bearing commit.
 
 Do not claim a check that did not run successfully against the final code state. Do not weaken configuration, delete coverage, approve changed baselines blindly, or suppress failures to pass.
+
+## Fallow commit gate
+
+Run the complete Fallow static flow for every commit containing code or code-affecting configuration, including executable frontend source, styles, schemas, manifests, lockfiles, and build or test configuration. Documentation-only and policy-only commits are exempt.
+
+1. Load and follow the installed `$fallow` skill.
+2. Stage the coherent commit, ensure no relevant unstaged edit makes the analysis scope ambiguous, and run the full repository analysis from the repository root:
+
+   ```bash
+   FALLOW_AGENT_SOURCE=codex fallow --format json --quiet --explain 2>/dev/null || true
+   ```
+
+3. Require the root JSON envelope to identify the combined full analysis. Review dead-code, duplication, and health results; distinguish pre-existing warnings from findings introduced by the staged change.
+4. Block the commit when Fallow is unavailable, returns a runtime-error envelope, or leaves an error-severity finding attributable to the commit. Do not auto-fix, suppress, or reconfigure a rule merely to pass.
+5. Record the command, analyzed revision and dirty state, finding disposition, and any accepted pre-existing warning. Any later relevant edit invalidates the result and requires a rerun before commit.
 
 ## Git safety and collaboration
 
 - Keep branches and commits scoped to one coherent concern. Preserve unrelated changes and avoid destructive Git operations or history rewriting without explicit authorization.
 - Review staged and unstaged diffs before each commit. Commit only complete, verified units with truthful imperative messages.
+- Treat the Fallow commit gate as mandatory for every code-bearing commit; never bypass it with `--no-verify` or a documentation-only classification that does not match the staged diff.
 - Do not push, publish, merge, rebase, amend, force-push, or create external resources unless requested.
 - Share concise progress and blockers during long work. Pause only for missing evidence, material scope decisions, required review boundaries, or external/destructive authorization.
 
 ## Completion
 
-Work is complete only when requirements and evidence map to implemented behavior; applicable states and responsive layouts are intentional; accessibility and performance budgets are verified; visual differences are explained; tests and builds pass; the final diff is focused; and independent review has no unresolved blocking finding.
+Work is complete only when requirements and evidence map to implemented behavior; applicable states and responsive layouts are intentional; accessibility and performance budgets are verified; visual differences are explained; tests and builds pass; required Fallow analysis covers the final code state; the final diff is focused; and independent review has no unresolved blocking finding.
 
 Report the working outcome, important files, commands and real results, viewports and states checked, accessibility and performance evidence, approved departures, and anything incomplete ordered by user impact.
 <!-- frontend-workflows:end -->

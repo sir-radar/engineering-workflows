@@ -2,6 +2,8 @@
 
 A local Codex plugin and reusable project policy for evidence-driven frontend implementation, accessibility, visual regression, performance, API states, design-system governance, and adversarial review.
 
+The managed policy also requires the complete Fallow static flow—dead code, duplication, and health—before every code-bearing commit.
+
 ## Included skills
 
 - `$figma-ui-implementation` — one-shot Figma or reference-image implementation.
@@ -14,12 +16,20 @@ A local Codex plugin and reusable project policy for evidence-driven frontend im
 
 ## Validate locally
 
-The toolkit has no package dependencies.
+The toolkit has no package dependencies. Fallow is an external commit-time prerequisite for code changes; install the `fallow` CLI and the Codex `$fallow` skill in any environment that will create code commits.
 
 ```bash
 node --test
 node scripts/validate-toolkit.mjs
 ```
+
+Before every commit containing code or code-affecting configuration, stage the coherent change and run the complete flow from that project root:
+
+```bash
+FALLOW_AGENT_SOURCE=codex fallow --format json --quiet --explain 2>/dev/null || true
+```
+
+Review the combined JSON envelope and block the commit for an unavailable/runtime-failing analyzer or an unresolved error-severity finding caused by the change. Documentation-only and policy-only commits are exempt. Rerun after any relevant edit; never use automatic fixes, suppressions, or `--no-verify` merely to pass.
 
 The official Codex skill and plugin validators are also run before release.
 
@@ -63,4 +73,4 @@ Open a new Codex task after reinstalling. When this repository gains a remote, p
 
 ## Repository boundaries
 
-This repository intentionally contains no application code, MCP server, hook, external runtime dependency, generated report, or project-specific asset. Publishing a remote repository is a separate explicit action.
+This repository intentionally contains no application code, MCP server, plugin hook, package dependency, generated report, or project-specific asset. Fallow remains an explicit external development prerequisite rather than a bundled runtime dependency.

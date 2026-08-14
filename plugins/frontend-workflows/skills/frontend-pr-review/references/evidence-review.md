@@ -22,4 +22,8 @@ Inspect canonical contract evidence, normalization, state matrix, fixture realis
 
 Inspect inventory search, Figma mapping, reuse/extend/create rationale, consumer analysis, public API, accessibility contract, and breaking-change plan.
 
+## Fallow
+
+Inspect the root combined JSON envelope, analyzed revision and dirty state, dead-code findings, duplicate groups, health findings, severities, and recorded dispositions. Confirm the run covers the final code state and that no later relevant edit made it stale. Missing Fallow, a runtime-error envelope, or an unresolved error-severity finding attributable to the change blocks a code-bearing commit.
+
 Challenge missing raw evidence or implausibly broad pass claims. Do not rerun an expensive unchanged check without a specific verification reason.

@@ -66,6 +66,7 @@ async function validateMarkdownLinks(path, content) {
 const plugin = JSON.parse(await readFile(join(pluginRoot, '.codex-plugin', 'plugin.json'), 'utf8'));
 check(plugin.name === 'frontend-workflows', 'plugin name must be frontend-workflows');
 check(/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(plugin.version), 'plugin version must be semver');
+const pluginBaseVersion = plugin.version.split('+')[0];
 check(plugin.skills === './skills/', 'plugin skills path must be ./skills/');
 check(!('apps' in plugin) && !('mcpServers' in plugin) && !('hooks' in plugin), 'plugin must not declare apps, MCP servers, or hooks');
 check(Array.isArray(plugin.interface?.defaultPrompt) && plugin.interface.defaultPrompt.length <= 3, 'plugin must provide at most three default prompts');
@@ -136,15 +137,27 @@ check(orchestrator.includes('figma-design-to-code'), 'figma-ui-implementation mu
 check(orchestrator.includes('[react.md](references/react.md)'), 'figma-ui-implementation must route React work');
 check(orchestrator.includes('[vue.md](references/vue.md)'), 'figma-ui-implementation must route Vue work');
 check(orchestrator.includes('for every data-backed surface'), 'API-state routing must remain conditional on data-backed UI');
+check(orchestrator.includes('$fallow'), 'figma-ui-implementation must route code-bearing commits through $fallow');
+check(orchestrator.includes('dead-code, duplication, and health'), 'figma-ui-implementation must require the complete Fallow flow');
+check(orchestrator.indexOf('Before every code-bearing commit') < orchestrator.indexOf('Load `$frontend-pr-review`'), 'Fallow must run before final PR review');
+
+const prReview = await readFile(join(skillsRoot, 'frontend-pr-review', 'SKILL.md'), 'utf8');
+check(prReview.includes('$fallow'), 'frontend-pr-review must inspect $fallow evidence');
+check(prReview.includes('complete root analysis'), 'frontend-pr-review must require complete Fallow analysis');
 
 const agents = await readFile(join(root, 'AGENTS.md'), 'utf8');
 const startMarkers = [...agents.matchAll(/<!-- frontend-workflows:start version=([^\s>]+) -->/g)];
 const endMarkers = [...agents.matchAll(/<!-- frontend-workflows:end -->/g)];
 check(startMarkers.length === 1 && endMarkers.length === 1, 'AGENTS.md must contain exactly one managed policy block');
-check(startMarkers[0]?.[1] === plugin.version.split('+')[0], 'managed policy version must match plugin base version');
+check(startMarkers[0]?.[1] === pluginBaseVersion, 'managed policy version must match plugin base version');
+check(agents.includes('## Fallow commit gate'), 'managed policy must define the Fallow commit gate');
+check(agents.includes('| `$fallow` |'), 'managed policy must route complete analysis through $fallow');
+check(agents.includes('FALLOW_AGENT_SOURCE=codex fallow --format json --quiet --explain 2>/dev/null || true'), 'managed policy must include the complete Fallow command');
+check(agents.includes('every code-bearing commit'), 'managed policy must make the Fallow gate mandatory for code commits');
 
 const packageJson = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 check(!packageJson.dependencies && !packageJson.devDependencies, 'toolkit must not declare runtime or development dependencies');
+check(packageJson.version === pluginBaseVersion, 'package version must match plugin base version');
 
 if (failures.length) {
   process.stderr.write(`${failures.map((failure) => `- ${failure}`).join('\n')}\n`);
