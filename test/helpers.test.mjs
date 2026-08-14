@@ -5,6 +5,7 @@ import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { arbitrateClaims } from '../plugins/frontend-workflows/skills/wayfinder/scripts/wayfinder-ledger.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const skills = join(root, 'plugins', 'frontend-workflows', 'skills');
@@ -127,6 +128,60 @@ test('SVG tools preserve definitions, prefix IDs, detect duplicates, and reject 
 
   assert.equal(run(convert, ['--input', safe, '--output', reactOutput, '--framework', 'react', '--component', 'Icon']).status, 1);
   assert.equal(run(convert, ['--input', unsafe, '--output', join(directory, 'Unsafe.tsx'), '--framework', 'react', '--component', 'Unsafe']).status, 1);
+});
+
+test('Wayfinder claim arbitration resolves races and releases deterministically', async (context) => {
+  const directory = await testDirectory('wayfinder-ledger-');
+  context.after(() => rm(directory, { recursive: true, force: true }));
+  const commentsPath = join(directory, 'comments.json');
+  const comments = [
+    {
+      id: 20,
+      created_at: '2026-08-14T12:00:00.000Z',
+      body: '<!-- wayfinder:claim session=session-b -->',
+    },
+    {
+      id: 10,
+      created_at: '2026-08-14T12:00:00.000Z',
+      body: '<!-- wayfinder:claim session=session-a -->',
+    },
+    {
+      id: 30,
+      created_at: '2026-08-14T12:00:01.000Z',
+      body: '<!-- wayfinder:claim session=session-a -->',
+    },
+  ];
+
+  assert.deepEqual(arbitrateClaims(comments, 'session-a'), {
+    winner: {
+      session: 'session-a',
+      claimedAt: '2026-08-14T12:00:00.000Z',
+      recordId: '10',
+    },
+    activeClaims: [
+      { session: 'session-a', claimedAt: '2026-08-14T12:00:00.000Z', recordId: '10' },
+      { session: 'session-b', claimedAt: '2026-08-14T12:00:00.000Z', recordId: '20' },
+    ],
+    callerOwnsClaim: true,
+  });
+
+  const released = [...comments, {
+    id: 40,
+    created_at: '2026-08-14T12:00:02.000Z',
+    body: '<!-- wayfinder:release session=session-a -->',
+  }];
+  assert.equal(arbitrateClaims(released, 'session-b').winner?.session, 'session-b');
+  assert.throws(() => arbitrateClaims([{
+    id: 50,
+    created_at: '2026-08-14T12:00:03.000Z',
+    body: '<!-- wayfinder:claim session=session-a --><!-- wayfinder:release session=session-a -->',
+  }]), /multiple Wayfinder claim markers/);
+
+  await writeFile(commentsPath, JSON.stringify(released));
+  const script = join(skills, 'wayfinder', 'scripts', 'wayfinder-ledger.mjs');
+  const cli = run(script, ['--input', commentsPath, '--session', 'session-b']);
+  assert.equal(cli.status, 0, cli.stderr);
+  assert.equal(JSON.parse(cli.stdout).callerOwnsClaim, true);
 });
 
 async function testDirectory(prefix) {

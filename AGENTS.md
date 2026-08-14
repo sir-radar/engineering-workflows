@@ -9,7 +9,7 @@
 - Do not add app code, project-specific assets, MCP servers, hooks, external runtime dependencies, or remote publishing without explicit scope.
 - Update shared project policy only inside the managed block. `scripts/sync-policy.mjs` distributes that block without overwriting consumer-owned instructions.
 
-<!-- frontend-workflows:start version=0.4.0 -->
+<!-- frontend-workflows:start version=0.5.0 -->
 # Evidence-Driven Frontend Workflow Policy
 
 ## Mission and scope
@@ -48,6 +48,7 @@ Use only installed skills whose trigger applies. Specialist skills own workflow 
 | Skill | Use for | Boundary |
 | --- | --- | --- |
 | `$caveman` | Automatic token-efficient user-facing communication for every task | Explicit style requests, correctness, clarity, safety, and required progress updates override compression |
+| `$wayfinder` | Explicit planning of uncertain efforts too large for one agent task as linked decision maps | Manual invocation only; plan decisions rather than implementing the destination |
 | `$figma-ui-implementation` | One-shot UI implementation from Figma, screenshots, exports, or layer CSS | Own evidence-to-code orchestration; do not approve its own final work |
 | `$design-system-governance` | Reuse, extend, local-create, or shared-create decisions | Do not force reuse without semantic and consumer fit |
 | `$api-state-contracts` | Data-backed UI, schemas, fixtures, races, rollback, and drift | Do not invent backend behavior or values |
@@ -69,6 +70,15 @@ Load `$caveman` automatically at the start of every task and keep it active for 
 - Keep persisted artifacts in their required native style. Do not apply caveman voice to code, comments, documentation, commits, issues, pull requests, memory, or third-party messages unless explicitly requested.
 - Honor `stop caveman`, `normal mode`, `/caveman off`, or equivalent immediately. Honor explicit intensity changes for the rest of the task.
 
+## Wayfinder planning mode
+
+Use `$wayfinder` only when the user explicitly invokes it for a foggy multi-session effort or supplies an existing Wayfinder map. Do not auto-trigger it for a clear request, ordinary task tracking, or an implementation plan.
+
+- Prefer a repository-configured tracker; otherwise use Wayfinder's local Markdown fallback. Do not select an external tracker from a remote alone.
+- Preview and obtain authority for issue creation, assignment, comments, labels, dependencies, and closure unless the user's request already explicitly authorizes those writes.
+- Keep decision maps concurrency-safe: one non-research ticket per task, deterministic claim ownership, pre-resolution re-verification, and append-only map events.
+- When the route is clear, hand execution to the applicable specialist workflow. Wayfinder does not implement or approve its own destination.
+
 ## Artifact handoff
 
 Keep compact working artifacts in task memory or a temporary directory unless repository policy requires committed documentation:
@@ -79,6 +89,7 @@ Keep compact working artifacts in task memory or a temporary directory unless re
 - performance baseline and final measurements;
 - API-state and contract report;
 - design-system decision record;
+- Wayfinder decision map, claim/event ledger, and cleared-route handoff when explicitly invoked;
 - final verification record and PR-review verdict.
 - complete Fallow analysis envelope and finding disposition for code commits.
 
