@@ -121,6 +121,22 @@ for (const name of actualSkills) {
   }
 }
 
+const orchestrator = await readFile(join(skillsRoot, 'figma-ui-implementation', 'SKILL.md'), 'utf8');
+for (const routedSkill of [
+  '$design-system-governance',
+  '$api-state-contracts',
+  '$visual-regression',
+  '$frontend-accessibility-audit',
+  '$frontend-performance-budget',
+  '$frontend-pr-review',
+]) {
+  check(orchestrator.includes(routedSkill), `figma-ui-implementation must route to ${routedSkill}`);
+}
+check(orchestrator.includes('figma-design-to-code'), 'figma-ui-implementation must require the Figma design-to-code prerequisite');
+check(orchestrator.includes('[react.md](references/react.md)'), 'figma-ui-implementation must route React work');
+check(orchestrator.includes('[vue.md](references/vue.md)'), 'figma-ui-implementation must route Vue work');
+check(orchestrator.includes('for every data-backed surface'), 'API-state routing must remain conditional on data-backed UI');
+
 const agents = await readFile(join(root, 'AGENTS.md'), 'utf8');
 const startMarkers = [...agents.matchAll(/<!-- frontend-workflows:start version=([^\s>]+) -->/g)];
 const endMarkers = [...agents.matchAll(/<!-- frontend-workflows:end -->/g)];
