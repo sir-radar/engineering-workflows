@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design System Governance"
+  short_description: "Govern component reuse, variants, and tokens"
+  default_prompt: "Use $design-system-governance to decide whether this UI should reuse, extend, or create components."
