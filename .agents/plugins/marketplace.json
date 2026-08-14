@@ -1,0 +1,20 @@
+{
+  "name": "frontend-workflow-toolkit",
+  "interface": {
+    "displayName": "Frontend Workflow Toolkit"
+  },
+  "plugins": [
+    {
+      "name": "frontend-workflows",
+      "source": {
+        "source": "local",
+        "path": "./plugins/frontend-workflows"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

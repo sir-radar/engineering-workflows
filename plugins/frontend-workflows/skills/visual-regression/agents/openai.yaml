@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual Regression"
+  short_description: "Build deterministic visual comparison tests"
+  default_prompt: "Use $visual-regression to create or audit deterministic screenshot tests for this interface."

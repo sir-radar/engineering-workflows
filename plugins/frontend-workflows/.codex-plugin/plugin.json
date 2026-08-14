@@ -1,0 +1,22 @@
+{
+  "name": "frontend-workflows",
+  "version": "0.1.0",
+  "description": "Evidence-driven frontend implementation, audit, and review workflows for Codex.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Frontend Workflows",
+    "shortDescription": "Implement and audit production frontend interfaces.",
+    "longDescription": "Frontend Workflows provides evidence-driven Figma implementation, accessibility, visual regression, performance, API-state, design-system, and pull-request review skills.",
+    "developerName": "Local developer",
+    "category": "Developer Tools",
+    "capabilities": [],
+    "defaultPrompt": [
+      "Implement this Figma UI exactly.",
+      "Audit this frontend pull request.",
+      "Measure this route against performance budgets."
+    ]
+  }
+}
