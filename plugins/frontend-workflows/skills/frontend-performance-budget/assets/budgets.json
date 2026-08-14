@@ -1,0 +1,9 @@
+{
+  "javascriptTotalKib": 200,
+  "javascriptFileKib": 100,
+  "cssTotalKib": 100,
+  "fontTotalKib": 150,
+  "imageTotalKib": 500,
+  "maxRegressionPercent": 5,
+  "maxRegressionKib": 10
+}

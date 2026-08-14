@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Performance Budget"
+  short_description: "Measure and enforce frontend performance budgets"
+  default_prompt: "Use $frontend-performance-budget to measure this frontend and enforce explicit performance budgets."
