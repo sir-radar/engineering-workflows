@@ -138,16 +138,13 @@ test('Wayfinder claim arbitration resolves races and releases deterministically'
     {
       id: 20,
       created_at: '2026-08-14T12:00:00.000Z',
+      user: { login: 'agent' },
       body: '<!-- wayfinder:claim session=session-b -->',
     },
     {
       id: 10,
       created_at: '2026-08-14T12:00:00.000Z',
-      body: '<!-- wayfinder:claim session=session-a -->',
-    },
-    {
-      id: 30,
-      created_at: '2026-08-14T12:00:01.000Z',
+      user: { login: 'agent' },
       body: '<!-- wayfinder:claim session=session-a -->',
     },
   ];
@@ -155,25 +152,30 @@ test('Wayfinder claim arbitration resolves races and releases deterministically'
   assert.deepEqual(arbitrateClaims(comments, 'session-a'), {
     winner: {
       session: 'session-a',
+      actor: 'agent',
       claimedAt: '2026-08-14T12:00:00.000Z',
       recordId: '10',
     },
     activeClaims: [
-      { session: 'session-a', claimedAt: '2026-08-14T12:00:00.000Z', recordId: '10' },
-      { session: 'session-b', claimedAt: '2026-08-14T12:00:00.000Z', recordId: '20' },
+      { session: 'session-a', actor: 'agent', claimedAt: '2026-08-14T12:00:00.000Z', recordId: '10' },
+      { session: 'session-b', actor: 'agent', claimedAt: '2026-08-14T12:00:00.000Z', recordId: '20' },
     ],
+    terminalResolution: null,
+    invalidRecords: [],
     callerOwnsClaim: true,
   });
 
   const released = [...comments, {
     id: 40,
     created_at: '2026-08-14T12:00:02.000Z',
+    user: { login: 'agent' },
     body: '<!-- wayfinder:release session=session-a -->',
   }];
   assert.equal(arbitrateClaims(released, 'session-b').winner?.session, 'session-b');
   assert.throws(() => arbitrateClaims([{
     id: 50,
     created_at: '2026-08-14T12:00:03.000Z',
+    user: { login: 'agent' },
     body: '<!-- wayfinder:claim session=session-a --><!-- wayfinder:release session=session-a -->',
   }]), /multiple Wayfinder claim markers/);
 
@@ -182,6 +184,61 @@ test('Wayfinder claim arbitration resolves races and releases deterministically'
   const cli = run(script, ['--input', commentsPath, '--session', 'session-b']);
   assert.equal(cli.status, 0, cli.stderr);
   assert.equal(JSON.parse(cli.stdout).callerOwnsClaim, true);
+});
+
+test('Wayfinder arbitration uses numeric IDs and rejects forged or losing resolutions', () => {
+  const tied = [
+    { id: 10, created_at: '2026-08-14T12:00:00.000Z', user: { login: 'alice' }, body: '<!-- wayfinder:claim session=session-ten -->' },
+    { id: 2, created_at: '2026-08-14T12:00:00.000Z', user: { login: 'bob' }, body: '<!-- wayfinder:claim session=session-two -->' },
+  ];
+  assert.equal(arbitrateClaims(tied).winner?.session, 'session-two');
+
+  const forged = [...tied, {
+    id: 11,
+    created_at: '2026-08-14T12:00:01.000Z',
+    user: { login: 'mallory' },
+    body: '<!-- wayfinder:resolved session=session-two -->',
+  }];
+  const forgedResult = arbitrateClaims(forged, 'session-two');
+  assert.equal(forgedResult.terminalResolution, null);
+  assert.equal(forgedResult.callerOwnsClaim, false);
+  assert.equal(forgedResult.invalidRecords[0]?.reason, 'actor-mismatch');
+
+  const losingResolution = [...tied, {
+    id: 12,
+    created_at: '2026-08-14T12:00:02.000Z',
+    user: { login: 'alice' },
+    body: '<!-- wayfinder:resolved session=session-ten -->',
+  }];
+  assert.equal(arbitrateClaims(losingResolution).invalidRecords[0]?.reason, 'session-did-not-own-winning-claim');
+
+  const resolved = [...tied, {
+    id: 13,
+    created_at: '2026-08-14T12:00:03.000Z',
+    user: { login: 'bob' },
+    body: '<!-- wayfinder:resolved session=session-two -->',
+  }];
+  const resolvedResult = arbitrateClaims(resolved, 'session-ten');
+  assert.equal(resolvedResult.winner, null);
+  assert.equal(resolvedResult.terminalResolution?.session, 'session-two');
+  assert.equal(resolvedResult.callerOwnsClaim, false);
+
+  const doubleResolved = [...resolved, {
+    id: 14,
+    created_at: '2026-08-14T12:00:04.000Z',
+    user: { login: 'alice' },
+    body: '<!-- wayfinder:resolved session=session-ten -->',
+  }];
+  const doubleResolvedResult = arbitrateClaims(doubleResolved);
+  assert.equal(doubleResolvedResult.terminalResolution?.session, 'session-two');
+  assert.equal(doubleResolvedResult.invalidRecords[0]?.reason, 'resolution-already-terminal');
+
+  assert.throws(() => arbitrateClaims([{
+    id: 15,
+    created_at: '2026-08-14T12:00:05.000Z',
+    body: '<!-- wayfinder:claim session=session-no-actor -->',
+  }]), /no actor identity/);
+  assert.throws(() => arbitrateClaims([tied[0], { ...tied[1], id: 10 }]), /Duplicate comment record ID/);
 });
 
 async function testDirectory(prefix) {

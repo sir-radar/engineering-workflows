@@ -121,7 +121,16 @@ for (const name of actualSkills) {
     check(skill.includes('[local-tracker.md](references/local-tracker.md)'), 'wayfinder: local tracker fallback is missing');
     check(skill.includes('scripts/wayfinder-ledger.mjs'), 'wayfinder: deterministic claim arbitration is missing');
     check(skill.includes('append-only'), 'wayfinder: concurrency-safe append-only events are missing');
+    check(skill.includes('Never implement the destination in a Wayfinder task'), 'wayfinder: execution boundary must not be bypassable through map Notes');
+    check(skill.includes('terminal resolution record'), 'wayfinder: partial resolution must remain terminal for claiming');
+    check(skill.includes('different actor'), 'wayfinder: terminal claim records must be actor-bound');
     check(!skill.includes('/grilling') && !skill.includes('/domain-modeling') && !skill.includes('/research') && !skill.includes('/prototype'), 'wayfinder: unresolved upstream skill dependency remains');
+    const localTracker = await readFile(join(directory, 'references', 'local-tracker.md'), 'utf8');
+    check(localTracker.includes('ownerless or malformed lock as a blocking claim'), 'wayfinder: ownerless local locks need safe reconciliation');
+    check(localTracker.includes('resolved ticket and complete answer are canonical'), 'wayfinder: local partial resolution recovery is ambiguous');
+    const githubTracker = await readFile(join(directory, 'references', 'github-tracker.md'), 'utf8');
+    check(githubTracker.includes('Fetch comment author identity'), 'wayfinder: GitHub arbitration must bind markers to actors');
+    check(githubTracker.includes('accepted `resolved` marker is terminal'), 'wayfinder: GitHub partial resolution must block reclaiming');
     const license = await readFile(join(directory, 'LICENSE'), 'utf8');
     check(license.includes('38d62e71ed01fc05d5ae63b0807172e9546049d5'), 'wayfinder: upstream revision must remain pinned');
     check(license.includes('Copyright (c) 2026 Matt Pocock'), 'wayfinder: upstream copyright notice is missing');
