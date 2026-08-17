@@ -25,7 +25,7 @@ Create one map issue labelled `wayfinder:map`. Keep its body immutable while tic
 
 ## Notes
 
-<constraints, decision owner, methods, execution override if any>
+<constraints, decision owner, methods, and prior execution authorization for later handoff if any>
 
 ## Initial fog
 
@@ -75,6 +75,8 @@ Create one stable session ID for the task. Prefer a host task/thread ID; otherwi
 6. To abandon a claim, append `<!-- wayfinder:release session=SESSION_ID -->`. Do not unassign a shared human identity when another session may own the issue.
 7. Before resolution, repeat steps 1, 3, and 4 and verify the issue is open and unblocked.
 
+Fetch comment author identity with every arbitration input. The helper binds `release` and `resolved` markers to the actor that posted that session's accepted claim. Treat `invalidRecords` as a reconciliation blocker. When `terminalResolution` is present, do not accept a new claim even if the issue remains open; repair only missing closure or map-event bookkeeping.
+
 ## Resolution and map events
 
 Post the complete ticket answer with one terminal claim marker, then close the ticket:
@@ -98,3 +100,5 @@ Use a stable event ID derived from the resolved ticket, such as `decision-<repo>
 Represent other changes as unique append-only events with `kind=fog-add`, `fog-graduate`, `scope-out`, or `destination-redraw`. Reconstruct the map from its initial body plus ordered event comments. Never rewrite a shared Decisions-so-far section.
 
 After writing, re-fetch the ticket and map comments. Verify the answer, closure, unique decision event, and resulting frontier before reporting success.
+
+If the answer comment succeeds but issue closure or map-event creation fails, its accepted `resolved` marker is terminal. Retry the missing writes idempotently; never let another session re-resolve the ticket.

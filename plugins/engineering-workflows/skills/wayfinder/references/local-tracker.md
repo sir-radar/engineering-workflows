@@ -29,7 +29,7 @@ Create `map.md` with:
 
 ## Notes
 
-<constraints, decision owner, methods, execution override if any>
+<constraints, decision owner, methods, and prior execution authorization for later handoff if any>
 
 ## Initial fog
 
@@ -68,6 +68,8 @@ An empty `Blocked by:` value means unblocked. The frontier is every `Status: ope
 
 Never create the lock with a read-then-write sequence; the directory creation itself is the arbitration primitive.
 
+If a process stops after `mkdir` but before writing a valid `owner.md`, treat the ownerless or malformed lock as a blocking claim. Never delete, replace, age out, or steal it automatically. Rename it to a released record only after explicit reconciliation establishes that no claimant can still be running.
+
 ## Append-only events
 
 Use a filename containing UTC time, session ID, kind, and ticket number. Create with exclusive semantics and never overwrite:
@@ -91,10 +93,10 @@ Before appending, search all event files for the Event ID. Identical content is 
 
 ## Resolution
 
-1. Re-verify the lock, ticket state, and blockers.
-2. Append `## Answer` to the ticket and change only its own `Status:` to `resolved`.
+1. Re-verify the lock owner, ticket state, blockers, and absence of an existing decision event.
+2. Append the complete `## Answer` and change only the ticket's own `Status:` to `resolved`.
 3. Create the decision event with exclusive semantics.
 4. Rename the lock directory to `claims/<ticket-number>.resolved-<UTC>-<session>/`.
-5. Re-read the ticket, event, and frontier.
+5. Re-read the ticket, event, archived lock, and frontier.
 
-The decision event is canonical if the process stops between ticket resolution and lock archival. Repair missing archival as bookkeeping; never resolve another ticket in the same task.
+The resolved ticket and complete answer are canonical. If the process stops after that write, repair a missing decision event and lock archival idempotently from the ticket answer. If the ticket is still open or its answer is incomplete, preserve all records and stop for reconciliation. Never resolve another ticket while repairing bookkeeping.
